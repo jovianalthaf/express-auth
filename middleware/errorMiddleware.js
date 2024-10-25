@@ -8,10 +8,16 @@ export const errorHandler = (err, req, res, next) => {
       // using map for get each message error from object err.errors
       .map((item) => item.message)
       .join(",");
-    resStatusCode = 400;
+    resStatusCode = 442;
   }
   res.status(resStatusCode).json({
     message,
     stack: err.stack,
   });
+};
+
+export const notFoundPath = (req, res, next) => {
+  const error = new Error(`url not found -${req.originalUrl}`);
+  res.status(404);
+  next(error);
 };

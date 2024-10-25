@@ -2,13 +2,14 @@ import express from "express";
 import authRoutes from "./routes/authRoutes.js";
 import "dotenv/config";
 import mongoose from "mongoose";
-import { errorHandler } from "./middleware/errorMiddleware.js";
+import { errorHandler, notFoundPath } from "./middleware/errorMiddleware.js";
 const app = express();
 const port = 3000;
 app.use(express.json());
 // urlencoded request body
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/auth", authRoutes);
+app.use(notFoundPath);
 app.use(errorHandler);
 
 try {
