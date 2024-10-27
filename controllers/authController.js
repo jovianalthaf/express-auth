@@ -9,6 +9,7 @@ const signToken = (id) => {
 }
 
 const createResToken = (user, statusCode, res) => {
+  // get user id from database, field id  in mongodb = _id
   const token = signToken(user._id);
 
   const cookieOption = {
@@ -56,3 +57,26 @@ export const loginUser = asyncHandler(async (req, res) => {
   }
 
 })
+
+export const currentUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  if (user) {
+    res.status(200).json({
+      user
+    })
+  } else {
+    res.status(401);
+    throw new Error("User not found");
+  }
+})
+
+export const logoutUser = async (req, res) => {
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    expire: new Date(Date.now())
+  })
+  res.status(200).json({
+    message: 'Logout success'
+  })
+
+}
