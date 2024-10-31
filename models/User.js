@@ -1,6 +1,8 @@
 import mongoose, { mongo } from "mongoose";
 import validator from "validator";
 import bcrypt from 'bcryptjs'
+import Randomstring from "randomstring";
+import Otpcode from "./OTPCode.js";
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -35,6 +37,9 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  refreshToken: {
+    type: String
+  },
   EmailVerifiedAt: {
     type: Date,
   },
@@ -47,6 +52,28 @@ userSchema.pre("save", async function () {
 
 userSchema.methods.comparePassword = async function (reqBody) {
   return await bcrypt.compare(reqBody, this.password);
+}
+
+userSchema.methods.generateOtpCode = async function () {
+  const randomstring = Randomstring.generate({
+    length: 6,
+    charset: 'numeric'
+  })
+  let now = new Date();
+  const otp = await Otpcode.findOneAndUpdate({
+    'user': this._id
+  }, {
+    // update field user
+    'otp': randomstring,
+    'validUntil': now.setMinutes(now.getMinutes() + 5)
+
+  }, {
+    new: true,
+    // update or insert
+    upsert: true,
+  })
+
+  return otp;
 }
 const User = mongoose.model("User", userSchema);
 

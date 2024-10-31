@@ -38,3 +38,12 @@ export const isAdmin = asyncHandler(async (req, res, next) => {
     //     throw new Error("Not Authorize, Admin Only");
     // }
 })
+
+export const verificationMiddleware = asyncHandler(async (req, res, next) => {
+    if (req.user && req.user.isVerified && req.user.EmailVerifiedAt) {
+        next()
+    } else {
+        res.status(401)
+        throw new Error("Your account not verified");
+    }
+})
